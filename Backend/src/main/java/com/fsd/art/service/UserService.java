@@ -158,13 +158,13 @@ public class UserService {
 
     }
     public UserRes signUp(UserReq userReq){
-        userRepository.findOneByEmail(userReq.email()).ifPresent(e ->{
-            throw  new EntityExistsException("Email Already SignUp");
-        });
+            userRepository.findOneByEmail(userReq.email()).ifPresent(e ->{
+                throw  new EntityExistsException("Email Already SignUp");
+            });
 
-        var user = userMapper.getUser(userReq);
-        var saveUser = userRepository.save(user);
-        return userMapper.getUserRes(saveUser);
+            var user = userMapper.getUser(userReq);
+            var saveUser = userRepository.save(user);
+            return userMapper.getUserRes(saveUser);
     }
 
     public void addPaintingInCart(Long userId, Long paintingId) {
@@ -191,11 +191,13 @@ public class UserService {
         var user = userRepository.findById(userId).orElseThrow(()-> new EntityNotFoundException("User Not Found"));
 
         var cartItem= user.getAdd_Cart_Item();
-
+        cartItem.forEach(item->{
+            System.out.println(item.getName()+" h1111");
+        });
         var artists = new ArrayList<User>();
 
-        cartItem.parallelStream().forEach(item-> {
-            if(item.isBuy()){
+        cartItem.forEach(item -> {
+            if(item.isBuy()) {
                 throw new EntityExistsException("Cart Contain Buy Item");
             }
             item.setBuy(true);
@@ -204,9 +206,14 @@ public class UserService {
             artists.add(item.getArtist());
         });
 
+
         paintingRepository.saveAll(cartItem);
         userRepository.saveAll(artists);
+        Set<Painting> updatedCart= cartItem.stream().filter(item->!item.isBuy()).collect(Collectors.toSet());
+        user.setAdd_Cart_Item(updatedCart);
+        userRepository.save(user);
 
+        System.out.println("dfsdf");
         return cartItem.stream().map(Painting::getId).toList();
     }
 

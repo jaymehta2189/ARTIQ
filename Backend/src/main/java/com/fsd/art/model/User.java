@@ -35,7 +35,7 @@ public class User {
     @OneToMany(mappedBy = "buyer",fetch = FetchType.LAZY)
     private List<Painting> purchased_Item;
 
-    @OneToMany(mappedBy = "artist",fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "artist",fetch = FetchType.EAGER)
     private List<Painting> sold_Item;
 
     @ManyToMany
